@@ -1,0 +1,15 @@
+$max-width: 672px;
+
+// マクロを定義
+@mixin media {
+  @media only screen and (min-width: 672px) {
+    @content;
+  }
+}
+
+@include media {
+  .media-container {
+    max-width: $max-width;
+    margin: 0 auto;
+  }
+}
