@@ -37,28 +37,20 @@
             >送信</IonButton
           >
         </form>
-      </div>
-      <div class="generated-images">
-        <IonGrid>
-          <IonRow>
-            <IonCol
-              size="12"
-              size-sm="12"
-              size-md="3"
-              size-lg="3"
-              size-xl="3"
-              v-for="(image, i) in images"
-              :key="image.url"
-            >
-              <IonCard>
-                <div class="image-container">
-                  <img :src="image.url" />
-                </div>
-                <IonCardContent> #{{ i + 1 }} </IonCardContent>
-              </IonCard>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
+        <div class="generated-images">
+          <IonGrid>
+            <IonRow>
+              <IonCol size="12" v-for="(image, i) in images" :key="image.url">
+                <IonCard>
+                  <div class="image-container">
+                    <img :src="image.url" />
+                  </div>
+                  <IonCardContent> #{{ i + 1 }} </IonCardContent>
+                </IonCard>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </div>
       </div>
     </IonContent>
   </IonPage>
@@ -133,8 +125,13 @@ const submit = async () => {
   margin-bottom: 10px;
 }
 .generated-images {
+  ion-grid {
+    padding-inline-start: 0;
+    padding-inline-end: 0;
+  }
   ion-card {
     margin-bottom: 10px;
+    margin-inline: 0;
     img {
       width: 100%;
     }
