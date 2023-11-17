@@ -1,6 +1,8 @@
 import { IonicVue } from "@ionic/vue";
 import { IonicConfig } from "@ionic/core";
 import { createApp } from "vue";
+import { createPinia } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import router from "./router";
 import App from "./App.vue";
 
@@ -27,6 +29,12 @@ const ionicConfig: IonicConfig = {
 };
 
 const app = createApp(App);
+
+// Pinia
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+app.use(pinia);
+
 app.use(IonicVue, ionicConfig);
 app.use(router);
 router.isReady().then(() => {
