@@ -39,13 +39,13 @@
             <IonCol
               size="12"
               size-sm="12"
-              size-md="6"
-              size-lg="6"
-              size-xl="6"
+              size-md="4"
+              size-lg="4"
+              size-xl="4"
               v-for="(image, i) in images"
               :key="image.image"
             >
-              <IonCard button>
+              <IonCard button @click="openModal(image)">
                 <div class="image-container">
                   <img :src="image.image" />
                 </div>
@@ -83,10 +83,11 @@ import {
   IonTitle,
   IonToolbar,
   IonCardContent,
+  modalController,
 } from "@ionic/vue";
 import { computed, ref } from "vue";
 import { GenerateImageResponse, useStore } from "@/composables/store";
-
+import ImageModal from "@/views/ImageModal.vue";
 const prompt = ref("");
 const isSubmitting = ref(false);
 const store = useStore();
@@ -94,7 +95,36 @@ const store = useStore();
 const submiText = computed(() => {
   return isSubmitting.value ? "生成中..." : "開始";
 });
-const images = ref<GenerateImageResponse[]>([]);
+const images = ref<GenerateImageResponse[]>([
+  {
+    id: "test",
+    image: "https://th.bing.com/th/id/OIG.jCnYyxyFMV1zntXA_clW?pid=ImgGn",
+  },
+  {
+    id: "test",
+    image: "https://th.bing.com/th/id/OIG.jCnYyxyFMV1zntXA_clW?pid=ImgGn",
+  },
+  {
+    id: "test",
+    image: "https://th.bing.com/th/id/OIG.jCnYyxyFMV1zntXA_clW?pid=ImgGn",
+  },
+]);
+
+const imageModal = ref<HTMLIonModalElement | null>(null);
+const openModal = async (img: GenerateImageResponse) => {
+  if (imageModal.value) return;
+  const modal = await modalController.create({
+    component: ImageModal,
+    componentProps: {
+      ...img,
+    },
+  });
+  await modal.present();
+  imageModal.value = modal;
+  await modal.onDidDismiss().finally(() => {
+    imageModal.value = null;
+  });
+};
 const submit = async () => {
   isSubmitting.value = true;
   const result = await store.generateImage(prompt.value).finally(() => {
@@ -106,7 +136,7 @@ const submit = async () => {
 
 <style scoped lang="scss">
 .generated-images {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   ion-grid {
     padding-inline-start: 0;
