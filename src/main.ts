@@ -1,6 +1,7 @@
 import { IonicVue } from "@ionic/vue";
 import { IonicConfig } from "@ionic/core";
 import { createApp } from "vue";
+import router from "./router";
 import App from "./App.vue";
 
 /* Core CSS required for Ionic components to work properly */
@@ -24,5 +25,10 @@ const ionicConfig: IonicConfig = {
   innerHTMLTemplatesEnabled: true,
   animated: true,
 };
-const app = createApp(App).use(IonicVue, ionicConfig);
-app.mount("#app");
+
+const app = createApp(App);
+app.use(IonicVue, ionicConfig);
+app.use(router);
+router.isReady().then(() => {
+  app.mount("#app");
+});
