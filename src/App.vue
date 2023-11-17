@@ -1,8 +1,32 @@
 <template>
-  <IonPage>
+  <IonMenu content-id="main-content">
     <IonHeader>
       <IonToolbar>
-        <IonTitle>DALL-E 3</IonTitle>
+        <IonTitle>メニュー</IonTitle>
+      </IonToolbar>
+    </IonHeader>
+    <IonContent>
+      <IonList>
+        <IonMenuToggle :auto-hide="false">
+          <IonItem routerLink="/home" lines="full" button>
+            <IonLabel>ホーム</IonLabel>
+          </IonItem>
+        </IonMenuToggle>
+        <IonMenuToggle :auto-hide="false">
+          <IonItem routerLink="/settings" lines="full" button>
+            <IonLabel>設定</IonLabel>
+          </IonItem>
+        </IonMenuToggle>
+      </IonList>
+    </IonContent>
+  </IonMenu>
+  <IonPage id="main-content">
+    <IonHeader>
+      <IonToolbar>
+        <IonButtons slot="start">
+          <IonMenuButton />
+        </IonButtons>
+        <IonTitle>AIで画像生成</IonTitle>
       </IonToolbar>
       <IonProgressBar
         v-if="isSubmitting"
@@ -66,10 +90,17 @@ import {
   IonGrid,
   IonHeader,
   IonInput,
+  IonMenu,
+  IonMenuButton,
+  IonButtons,
   IonPage,
   IonProgressBar,
   IonRow,
   IonTitle,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonMenuToggle,
   IonToolbar,
 } from "@ionic/vue";
 import { ref } from "vue";
