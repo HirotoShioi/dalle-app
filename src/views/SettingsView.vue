@@ -11,9 +11,8 @@
     <IonContent class="ion-content">
       <div class="media-container">
         <div class="form-group">
+          <IonLabel>OpenAIのToken</IonLabel>
           <IonInput
-            label="OpenAIのToken"
-            label-placement="floating"
             fill="outline"
             mode="md"
             placeholder="OpenAIのTokenを入力してください"
@@ -35,6 +34,7 @@ import {
   IonTitle,
   IonToolbar,
   IonInput,
+  IonLabel,
 } from "@ionic/vue";
 import { useStore } from "@/composables/store";
 const store = useStore();

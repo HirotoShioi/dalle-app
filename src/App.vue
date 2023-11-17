@@ -14,7 +14,7 @@
               lines="full"
               button
             >
-              <IonLabel>ホーム</IonLabel>
+              <IonLabel>生成</IonLabel>
             </IonItem>
           </IonMenuToggle>
           <IonMenuToggle :auto-hide="false">

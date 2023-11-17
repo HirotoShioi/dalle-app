@@ -2,12 +2,14 @@ import { alertController, useIonRouter } from "@ionic/vue";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
+export type GenerateImageResponse = {
+  id: string;
+  image: string;
+  property?: object;
+};
+
 interface ImageGenerator {
-  generateImage: (prompt: string) => Promise<{
-    id: string;
-    image: string;
-    property?: object;
-  }>;
+  generateImage: (prompt: string) => Promise<GenerateImageResponse>;
 }
 
 export const useStore = defineStore(
@@ -97,7 +99,7 @@ class Dalle2ImageGenerator implements ImageGenerator {
     const fetchedImage = await result.json();
     return {
       id: "DALL-E-2",
-      image: fetchedImage.data[0],
+      image: fetchedImage.data[0].url as string,
     };
   }
 }
@@ -128,7 +130,7 @@ class Dalle3ImageGenerator implements ImageGenerator {
     const fetchedImage = await result.json();
     return {
       id: "DALL-E-3",
-      image: fetchedImage.data[0],
+      image: fetchedImage.data[0].url as string,
     };
   }
 }
