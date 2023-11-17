@@ -1,4 +1,4 @@
-import { alertController } from "@ionic/vue";
+import { alertController, useIonRouter } from "@ionic/vue";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
@@ -13,6 +13,7 @@ interface ImageGenerator {
 export const useStore = defineStore(
   "store",
   () => {
+    const router = useIonRouter();
     const openAIToken = ref();
 
     const generateImage = async (prompt: string) => {
@@ -20,7 +21,14 @@ export const useStore = defineStore(
         const alert = await alertController.create({
           header: "OpenAI Tokenがセットされていません",
           message: "設定画面からOpenAI Tokenをセットしてください",
-          buttons: ["OK"],
+          buttons: [
+            {
+              text: "設定画面へ",
+              handler: () => {
+                router.push({ name: "settings" });
+              },
+            },
+          ],
         });
         await alert.present();
         return [];
