@@ -20,6 +20,15 @@
           />
         </div>
         <div class="form-group">
+          <IonLabel>ClipDropのトークン</IonLabel>
+          <IonInput
+            fill="outline"
+            mode="md"
+            placeholder="ClipDropのTokenを入力してください"
+            v-model="store.clipdropToken"
+          />
+        </div>
+        <div class="form-group">
           <IonLabel>Imgbbのトークン</IonLabel>
           <IonInput
             fill="outline"

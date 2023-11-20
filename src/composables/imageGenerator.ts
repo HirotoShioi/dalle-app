@@ -19,9 +19,26 @@ export const useImageGenerator = defineStore(
     const router = useIonRouter();
     const openAIToken = ref();
     const imgbbToken = ref();
+    const clipdropToken = ref();
     const generatedImages = ref<GenerateImageResponse[]>([]);
 
     const generateImage = async (prompt: string) => {
+      if (!clipdropToken.value) {
+        const alert = await alertController.create({
+          header: "ClipDrop Tokenがセットされていません",
+          message: "設定画面からClipDrop Tokenをセットしてください",
+          buttons: [
+            {
+              text: "設定画面へ",
+              handler: () => {
+                router.push({ name: "settings" });
+              },
+            },
+          ],
+        });
+        await alert.present();
+        return;
+      }
       if (!openAIToken.value) {
         const alert = await alertController.create({
           header: "OpenAI Tokenがセットされていません",
@@ -36,7 +53,7 @@ export const useImageGenerator = defineStore(
           ],
         });
         await alert.present();
-        return [];
+        return;
       }
       if (!imgbbToken.value) {
         const alert = await alertController.create({
@@ -52,7 +69,7 @@ export const useImageGenerator = defineStore(
           ],
         });
         await alert.present();
-        return [];
+        return;
       }
       if (!prompt || prompt.length === 0) {
         const alert = await alertController.create({
@@ -61,11 +78,12 @@ export const useImageGenerator = defineStore(
           buttons: ["OK"],
         });
         await alert.present();
-        return [];
+        return;
       }
       const imageGenerators: ImageGenerator[] = [
-        Dalle2ImageGenerator.create(openAIToken.value),
-        Dalle3ImageGenerator.create(openAIToken.value),
+        // Dalle2ImageGenerator.create(openAIToken.value, imgbbToken.value),
+        // Dalle3ImageGenerator.create(openAIToken.value, imgbbToken.value),
+        ClipDrop.create(clipdropToken.value, imgbbToken.value),
       ];
       const imgs = await Promise.all(
         imageGenerators.map((generator) => generator.generateImage(prompt))
@@ -87,6 +105,7 @@ export const useImageGenerator = defineStore(
       generateImage,
       generatedImages,
       imgbbToken,
+      clipdropToken,
     };
   },
   {
@@ -97,6 +116,7 @@ export const useImageGenerator = defineStore(
             openAIToken: value.openAIToken,
             generatedImages: value.generatedImages,
             imgbbToken: value.imgbbToken,
+            clipdropToken: value.clipdropToken,
           });
         },
         deserialize: (value) => {
@@ -104,6 +124,7 @@ export const useImageGenerator = defineStore(
             openAIToken: string;
             generatedImages: GenerateImageResponse[];
             imgbbToken: string;
+            clipdropToken: string;
           };
         },
       },
@@ -112,9 +133,9 @@ export const useImageGenerator = defineStore(
 );
 
 class Dalle2ImageGenerator implements ImageGenerator {
-  constructor(readonly token: string) {}
-  static create(token: string) {
-    return new Dalle2ImageGenerator(token);
+  constructor(readonly token: string, readonly imgbbToken: string) {}
+  static create(token: string, imgbbToken: string) {
+    return new Dalle2ImageGenerator(token, imgbbToken);
   }
   async generateImage(prompt: string): Promise<GenerateImageResponse> {
     const result = await fetch("https://api.openai.com/v1/images/generations", {
@@ -133,18 +154,19 @@ class Dalle2ImageGenerator implements ImageGenerator {
       }),
     });
     const fetchedImage = await result.json();
+    const url = await storeImage(this.imgbbToken, fetchedImage.data[0].url);
     return {
       id: "DALL-E-2",
       prompt,
-      image: fetchedImage.data[0].url as string,
+      image: url,
     };
   }
 }
 
 class Dalle3ImageGenerator implements ImageGenerator {
-  constructor(readonly token: string) {}
-  static create(token: string) {
-    return new Dalle3ImageGenerator(token);
+  constructor(readonly token: string, readonly imgbbToken: string) {}
+  static create(token: string, imgbbToken: string) {
+    return new Dalle3ImageGenerator(token, imgbbToken);
   }
   async generateImage(prompt: string): Promise<GenerateImageResponse> {
     const result = await fetch("https://api.openai.com/v1/images/generations", {
@@ -163,10 +185,45 @@ class Dalle3ImageGenerator implements ImageGenerator {
       }),
     });
     const fetchedImage = await result.json();
+    const url = await storeImage(this.imgbbToken, fetchedImage.data[0].url);
     return {
       id: "DALL-E-3",
       prompt,
-      image: fetchedImage.data[0].url as string,
+      image: url,
+    };
+  }
+}
+
+class ClipDrop implements ImageGenerator {
+  constructor(readonly token: string, readonly imgbbToken: string) {}
+  static create(token: string, imgbbToken: string) {
+    return new ClipDrop(token, imgbbToken);
+  }
+  async generateImage(prompt: string): Promise<GenerateImageResponse> {
+    const form = new FormData();
+    form.append("prompt", prompt);
+    const result = await fetch("https://clipdrop-api.co/text-to-image/v1", {
+      method: "POST",
+      headers: {
+        "x-api-key": this.token,
+      },
+      body: form,
+    });
+    const buffer = await result.arrayBuffer();
+    // upload to imgbb
+    const url = new URL("https://api.imgbb.com/1/upload");
+    const form2 = new FormData();
+    form2.append("image", new Blob([buffer]));
+    url.searchParams.append("key", this.imgbbToken);
+    const result2 = await fetch(url, {
+      method: "POST",
+      body: form2,
+    });
+    const uploadedImage = await result2.json();
+    return {
+      id: "ClipDrop",
+      prompt,
+      image: uploadedImage.data.url as string,
     };
   }
 }
@@ -182,5 +239,5 @@ const storeImage = async (token: string, image: string) => {
   });
   const uploadedImage = await result.json();
   console.log(uploadedImage);
-  return uploadedImage.data.url;
+  return uploadedImage.data.url as string;
 };
