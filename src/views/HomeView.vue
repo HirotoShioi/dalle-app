@@ -42,7 +42,7 @@
               size-md="6"
               size-lg="6"
               size-xl="6"
-              v-for="(image, i) in images"
+              v-for="(image, i) in store.generatedImages"
               :key="image.image"
             >
               <IonCard button @click="openModal(image)">
@@ -86,16 +86,18 @@ import {
   modalController,
 } from "@ionic/vue";
 import { computed, ref } from "vue";
-import { GenerateImageResponse, useStore } from "@/composables/store";
+import {
+  GenerateImageResponse,
+  useImageGenerator,
+} from "@/composables/imageGenerator";
 import ImageModal from "@/views/ImageModal.vue";
 const prompt = ref("");
 const isSubmitting = ref(false);
-const store = useStore();
+const store = useImageGenerator();
 
 const submiText = computed(() => {
   return isSubmitting.value ? "生成中..." : "開始";
 });
-const images = ref<GenerateImageResponse[]>([]);
 
 const imageModal = ref<HTMLIonModalElement | null>(null);
 const openModal = async (img: GenerateImageResponse) => {
@@ -114,10 +116,9 @@ const openModal = async (img: GenerateImageResponse) => {
 };
 const submit = async () => {
   isSubmitting.value = true;
-  const result = await store.generateImage(prompt.value).finally(() => {
+  await store.generateImage(prompt.value).finally(() => {
     isSubmitting.value = false;
   });
-  images.value = [...result, ...images.value];
 };
 </script>
 
@@ -142,3 +143,4 @@ const submit = async () => {
   }
 }
 </style>
+@/composables/imageGenerator

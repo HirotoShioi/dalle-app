@@ -12,6 +12,10 @@ $max-width: 672px;
     max-width: $max-width;
     margin: 0 auto;
   }
+  ion-modal {
+    --width: 550px;
+    --height: 650px;
+  }
 }
 
 .form-group {

@@ -19,6 +19,15 @@
             v-model="store.openAIToken"
           />
         </div>
+        <div class="form-group">
+          <IonLabel>Imgbbのトークン</IonLabel>
+          <IonInput
+            fill="outline"
+            mode="md"
+            placeholder="imgbbのTokenを入力してください"
+            v-model="store.imgbbToken"
+          />
+        </div>
       </div>
     </IonContent>
   </IonPage>
@@ -36,8 +45,8 @@ import {
   IonInput,
   IonLabel,
 } from "@ionic/vue";
-import { useStore } from "@/composables/store";
-const store = useStore();
+import { useImageGenerator } from "@/composables/imageGenerator";
+const store = useImageGenerator();
 </script>
 
 <style scoped lang="scss"></style>

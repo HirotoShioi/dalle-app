@@ -5,6 +5,7 @@ import { ref } from "vue";
 export type GenerateImageResponse = {
   id: string;
   image: string;
+  prompt: string;
   property?: object;
 };
 
@@ -12,17 +13,35 @@ interface ImageGenerator {
   generateImage: (prompt: string) => Promise<GenerateImageResponse>;
 }
 
-export const useStore = defineStore(
+export const useImageGenerator = defineStore(
   "store",
   () => {
     const router = useIonRouter();
     const openAIToken = ref();
+    const imgbbToken = ref();
+    const generatedImages = ref<GenerateImageResponse[]>([]);
 
     const generateImage = async (prompt: string) => {
       if (!openAIToken.value) {
         const alert = await alertController.create({
           header: "OpenAI Tokenがセットされていません",
           message: "設定画面からOpenAI Tokenをセットしてください",
+          buttons: [
+            {
+              text: "設定画面へ",
+              handler: () => {
+                router.push({ name: "settings" });
+              },
+            },
+          ],
+        });
+        await alert.present();
+        return [];
+      }
+      if (!imgbbToken.value) {
+        const alert = await alertController.create({
+          header: "imgbb Tokenがセットされていません",
+          message: "設定画面からimgbb Tokenをセットしてください",
           buttons: [
             {
               text: "設定画面へ",
@@ -48,25 +67,44 @@ export const useStore = defineStore(
         Dalle2ImageGenerator.create(openAIToken.value),
         Dalle3ImageGenerator.create(openAIToken.value),
       ];
-      const result = await Promise.all(
+      const imgs = await Promise.all(
         imageGenerators.map((generator) => generator.generateImage(prompt))
       );
-      return [...result];
+      const result = await Promise.all(
+        imgs.map(async (img) => {
+          const url = await storeImage(imgbbToken.value, img.image);
+          return {
+            ...img,
+            image: url,
+          };
+        })
+      );
+      generatedImages.value = [...result, ...generatedImages.value];
     };
 
     return {
       openAIToken,
       generateImage,
+      generatedImages,
+      imgbbToken,
     };
   },
   {
     persist: {
       serializer: {
         serialize: (value) => {
-          return JSON.stringify(value.openAIToken);
+          return JSON.stringify({
+            openAIToken: value.openAIToken,
+            generatedImages: value.generatedImages,
+            imgbbToken: value.imgbbToken,
+          });
         },
         deserialize: (value) => {
-          return { openAIToken: JSON.parse(value) };
+          return JSON.parse(value) as {
+            openAIToken: string;
+            generatedImages: GenerateImageResponse[];
+            imgbbToken: string;
+          };
         },
       },
     },
@@ -78,9 +116,7 @@ class Dalle2ImageGenerator implements ImageGenerator {
   static create(token: string) {
     return new Dalle2ImageGenerator(token);
   }
-  async generateImage(
-    prompt: string
-  ): Promise<{ id: string; image: string; property?: object | undefined }> {
+  async generateImage(prompt: string): Promise<GenerateImageResponse> {
     const result = await fetch("https://api.openai.com/v1/images/generations", {
       headers: {
         Authorization: `Bearer ${this.token}`,
@@ -99,6 +135,7 @@ class Dalle2ImageGenerator implements ImageGenerator {
     const fetchedImage = await result.json();
     return {
       id: "DALL-E-2",
+      prompt,
       image: fetchedImage.data[0].url as string,
     };
   }
@@ -109,9 +146,7 @@ class Dalle3ImageGenerator implements ImageGenerator {
   static create(token: string) {
     return new Dalle3ImageGenerator(token);
   }
-  async generateImage(
-    prompt: string
-  ): Promise<{ id: string; image: string; property?: object | undefined }> {
+  async generateImage(prompt: string): Promise<GenerateImageResponse> {
     const result = await fetch("https://api.openai.com/v1/images/generations", {
       headers: {
         Authorization: `Bearer ${this.token}`,
@@ -130,7 +165,22 @@ class Dalle3ImageGenerator implements ImageGenerator {
     const fetchedImage = await result.json();
     return {
       id: "DALL-E-3",
+      prompt,
       image: fetchedImage.data[0].url as string,
     };
   }
 }
+
+const storeImage = async (token: string, image: string) => {
+  const url = new URL("https://api.imgbb.com/1/upload");
+  const form = new FormData();
+  form.append("image", image);
+  url.searchParams.append("key", token);
+  const result = await fetch(url, {
+    method: "POST",
+    body: form,
+  });
+  const uploadedImage = await result.json();
+  console.log(uploadedImage);
+  return uploadedImage.data.url;
+};

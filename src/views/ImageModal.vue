@@ -9,15 +9,16 @@
       </IonButtons>
     </IonToolbar>
   </IonHeader>
-  <IonContent>
+  <IonContent class="ion-padding">
     <div class="image-container">
       <img :src="image" alt="" />
     </div>
+    <p>{{ prompt }}</p>
   </IonContent>
 </template>
 
 <script setup lang="ts">
-import { GenerateImageResponse } from "@/composables/store";
+import { GenerateImageResponse } from "@/composables/imageGenerator";
 import {
   IonHeader,
   IonToolbar,
@@ -34,13 +35,13 @@ defineProps<GenerateImageResponse>();
 
 <style scoped lang="scss">
 .image-container {
-  width: 100%;
-  height: 100%;
+  display: flex;
+  justify-content: center;
   img {
-    width: 100%;
     height: auto;
     aspect-ratio: 1/1;
     object-fit: cover;
   }
 }
 </style>
+@/composables/imageGenerator
