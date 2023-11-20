@@ -39,9 +39,9 @@
             <IonCol
               size="12"
               size-sm="12"
-              size-md="4"
-              size-lg="4"
-              size-xl="4"
+              size-md="6"
+              size-lg="6"
+              size-xl="6"
               v-for="(image, i) in images"
               :key="image.image"
             >
@@ -95,20 +95,7 @@ const store = useStore();
 const submiText = computed(() => {
   return isSubmitting.value ? "生成中..." : "開始";
 });
-const images = ref<GenerateImageResponse[]>([
-  {
-    id: "test",
-    image: "https://th.bing.com/th/id/OIG.jCnYyxyFMV1zntXA_clW?pid=ImgGn",
-  },
-  {
-    id: "test",
-    image: "https://th.bing.com/th/id/OIG.jCnYyxyFMV1zntXA_clW?pid=ImgGn",
-  },
-  {
-    id: "test",
-    image: "https://th.bing.com/th/id/OIG.jCnYyxyFMV1zntXA_clW?pid=ImgGn",
-  },
-]);
+const images = ref<GenerateImageResponse[]>([]);
 
 const imageModal = ref<HTMLIonModalElement | null>(null);
 const openModal = async (img: GenerateImageResponse) => {
