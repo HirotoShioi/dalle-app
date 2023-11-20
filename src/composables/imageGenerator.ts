@@ -81,8 +81,8 @@ export const useImageGenerator = defineStore(
         return;
       }
       const imageGenerators: ImageGenerator[] = [
-        // Dalle2ImageGenerator.create(openAIToken.value, imgbbToken.value),
-        // Dalle3ImageGenerator.create(openAIToken.value, imgbbToken.value),
+        Dalle2ImageGenerator.create(openAIToken.value, imgbbToken.value),
+        Dalle3ImageGenerator.create(openAIToken.value, imgbbToken.value),
         ClipDrop.create(clipdropToken.value, imgbbToken.value),
       ];
       const imgs = await Promise.all(

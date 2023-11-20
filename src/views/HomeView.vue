@@ -39,9 +39,9 @@
             <IonCol
               size="12"
               size-sm="12"
-              size-md="6"
-              size-lg="6"
-              size-xl="6"
+              size-md="4"
+              size-lg="3"
+              size-xl="3"
               v-for="(image, i) in store.generatedImages"
               :key="image.image"
             >
@@ -124,7 +124,7 @@ const submit = async () => {
 
 <style scoped lang="scss">
 .generated-images {
-  max-width: 1000px;
+  // max-width: 1000px;
   margin: 0 auto;
   ion-grid {
     padding-inline-start: 0;
